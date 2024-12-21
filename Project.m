@@ -12,7 +12,7 @@ n = nyquistplot(tf_G);
 setoptions(n,'ShowFullContour', 'off')
 grid on
 
-%% Question 01
+%% P1 - Question 01
 
 % Actuator 1 - Dead zone
 
@@ -63,9 +63,113 @@ legend('System 1', 'Actuator 1', 'Actuator 2', 'Actuator 3')
 axis([-1.5 -0.5 -5 10])
 hold off
 
-%%
-sol = vpasolve([eq1,eq2],[w,x])
+%% P1 - Question 02
 
-G(sol.w)
-N(sol.x)
+% Popov Criteria
 
+% Define the frequency range
+omega = logspace(-3, 4, 100000);  % Frequency range (logarithmic scale)
+
+% Define the transfer function G(jw)
+Gjw = 20 ./ (-1j * omega.^3 - 7 * omega.^2 + 1j * 10 * omega);  % Transfer function G(jw)
+
+% Real and Imaginary parts of G(jw)
+X = real(Gjw);
+Y = imag(Gjw).*omega;
+
+% Plot Imag(Gjw)*w x Real(Gjw)
+figure;
+plot(X, Y, 'LineWidth',2);
+hold on
+
+% Define q values - slope of Popov line (1/q)
+q_values = linspace(0,1,20); % Example slopes for Popov line
+K_max_values = zeros(size(q_values)); % Store max K for each lambda
+
+% Loop through each slope q
+for i = 1:length(q_values)
+    q = q_values(i);
+    
+    % Possible gains
+    K_range = linspace(0, 4, 100); % Range of K to test
+    valid_K = 0; % Store the largest gain
+    
+    % Evaluate the Popov inequality
+    for K = K_range
+        Popov_inequality = X - q * Y + 1/K;
+        
+        % Check if the inequality is satisfied for all frequencies
+        if all(Popov_inequality > 0)
+            valid_K = K;
+        else
+            break
+        end
+    end
+    
+    % Store the largest valid K for this slope
+    K_max_values(i) = valid_K;
+end
+
+
+cmap = jet(length(K_max_values)); % Create a colormap based on the number of K_max_values
+
+% Loop through each K in K_max_values
+legend_entries = cell(1,size(K_max_values,2));
+legend_entries{1} = sprintf('System G');
+for i = 1:length(K_max_values)
+    K = K_max_values(i);  % Get the current K value
+    q = q_values(i);
+    
+    % Normalize K to map to the colormap
+    normalized_K = (K - min(K_max_values)) / (max(K_max_values) - min(K_max_values));  % Normalize K for colormap
+    
+    % Calculate the Popov line
+    line = (X + 1 / K) ./ q;
+    
+    % Plot the line with color corresponding to K
+    plot(X, line, 'LineWidth', 0.5, 'Color', cmap(round(normalized_K * (length(K_max_values) - 1)) + 1, :));  % Color varies with K
+
+    % Add a legend entry for the current K value
+    legend_entries{i+1} = sprintf('K = %.3f, q = %.3f', K, q);
+end
+
+% Add the legend with all entries
+legend(legend_entries, 'Location', 'Best');
+
+% Axis properties
+axis([min(X)/2 max(X)/2 min(Y)/2+0.5 max(Y)/2+0.5]);
+grid on;
+xlabel('Re(G(j\omega))');
+ylabel('Im(G(j\omega)) \cdot \omega');
+hold off;
+
+% Plot effect of q on Maximum Gain K
+figure;
+plot(q_values, K_max_values, '-o', 'LineWidth', 2);
+xlabel('q (Slope of Popov Line)');
+ylabel('Maximum K');
+title('Effect of q on Maximum Gain K');
+grid on;
+
+% Plot K max line
+[k_max, idx] = max(K_max_values);
+line = (X + 1 / k_max) ./ q_values(idx);
+
+figure
+plot(X, Y, 'LineWidth',2);
+hold on
+plot(X, line, 'LineWidth', 1);
+plot(-1/k_max, 0, 'bo')
+hold off
+legend('System G', 'Popov Line', sprintf('K = %.3f, q = %.3f', k_max, q_values(idx)))
+axis([min(X)/2 max(X)/2 min(Y)/2+0.5 max(Y)/2+0.5]);
+grid on;
+xlabel('Re(G(j\omega))');
+ylabel('Im(G(j\omega)) \cdot \omega');
+
+% Conclusions
+fprintf('P1 - Question 02\n')
+fprintf('Popov Criteria\n');
+fprintf('Interval K - [0, %.3f]\n', max(K_max_values));
+
+%% P2 - Question 01
