@@ -80,7 +80,11 @@ Y = imag(Gjw).*omega;
 % Plot Imag(Gjw)*w x Real(Gjw)
 figure;
 plot(X, Y, 'LineWidth',2);
-hold on
+axis([min(X)/2 max(X)/2 min(Y)/2+0.5 max(Y)/2+0.5]);
+grid on;
+title('System G(j \omega)');
+xlabel('Re(G(j\omega))');
+ylabel('Im(G(j\omega)) \cdot \omega');
 
 % Define q values - slope of Popov line (1/q)
 q_values = linspace(0,1,20); % Example slopes for Popov line
@@ -116,6 +120,10 @@ cmap = jet(length(K_max_values)); % Create a colormap based on the number of K_m
 % Loop through each K in K_max_values
 legend_entries = cell(1,size(K_max_values,2));
 legend_entries{1} = sprintf('System G');
+
+figure
+plot(X, Y, 'LineWidth',2);
+hold on
 for i = 1:length(K_max_values)
     K = K_max_values(i);  % Get the current K value
     q = q_values(i);
@@ -146,9 +154,9 @@ hold off;
 % Plot effect of q on Maximum Gain K
 figure;
 plot(q_values, K_max_values, '-o', 'LineWidth', 2);
-xlabel('q (Slope of Popov Line)');
+xlabel('q');
 ylabel('Maximum K');
-title('Effect of q on Maximum Gain K');
+title('Effect of q on maximum K');
 grid on;
 
 % Plot K max line
