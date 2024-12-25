@@ -217,7 +217,7 @@ legend('x_1', 'x_2', 'x_3');
 subplot(3, 1, 2);
 plot(t, y(:, 4)); % Plota a ação de controle
 xlabel('Time (s)');
-ylabel('Control law (u)');
+ylabel('Control Action');
 
 subplot(3, 1, 3);
 plot(t, s); % Plota a ação de controle
