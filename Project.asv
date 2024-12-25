@@ -190,12 +190,12 @@ fprintf('Interval K - [0, %.3f]\n', max(K_max_values));
 
 % --------- Specific case
 % Control law 
-Phi = 1.5;
-eta = 1;
+Phi = 0.1;
+eta = 0.1;
 K = [0.25 0.25 -1];
 
 % Intervalo de Simulação
-interval = [0 8];
+interval = [0 10];
 x0 = [2 2 2 0];
 
 % Solver ODE45
@@ -227,146 +227,22 @@ ylabel('Sliding surface (s)');
 
 % --------- Changing the value of Phi
 % Control law 
-Phi_values = [0.1 1 2 4];
+Phi_values = [0.1 1 5 10];
+for Phi=Phi_values;
 
-figure
+eta = 0.1;
+K = [0.25 0.25 -1];
 
-% Preallocate legend entries for each subplot
-legend_entries = cell(1, length(Phi_values));
+% Intervalo de Simulação
+interval = [0 10];
+x0 = [2 2 2 0];
 
-% Create subplots
-subplot(3, 1, 1);
-hold on;
+% Solver ODE45
+[t, y] = ode45(@(t, x) SystemProblem02(t, x, @(x) ControlLawSlidingSurface(x, Phi, eta, K)), interval, x0);
 
-subplot(3, 1, 2);
-hold on;
-
-subplot(3, 1, 3);
-hold on;
-
-
-for i = 1:length(Phi_values)
-    Phi = Phi_values(i);
-    eta = 0.1;
-    K = [0.25 0.25 -1];
-    
-    % Intervalo de Simulação
-    interval = [0 8];
-    x0 = [2 2 2 0];
-    
-    % Solver ODE45
-    [t, y] = ode45(@(t, x) SystemProblem02(t, x, @(x) ControlLawSlidingSurface(x, Phi, eta, K)), interval, x0);
-    
-    s = zeros(size(y,1),1);
-    for j = 1:size(y,1)
-        s(j) = y(j,1) + y(j,2) + y(j,3);
-    end
-    
-    % Plot x_2
-    subplot(3, 1, 1);
-    plot(t, y(:, 2));
-    
-    % Plot control action
-    subplot(3, 1, 2);
-    plot(t, y(:, 4));
-    
-    subplot(3, 1, 3);
-    plot(t, s);
-
-    % Update legend entries
-    legend_entries{i} = sprintf('\\Phi = %.1f', Phi); % Use LaTeX for Φ
+s = zeros(size(y,1),1);
+for i=1:size(y,1)
+    s(i) = y(i,1)+y(i,2)+y(i,3);
 end
 
-subplot(3, 1, 1);
-legend(legend_entries, 'Location', 'Best');
-xlabel('Time (s)');
-ylabel('State x_2');
-grid on;
-
-subplot(3, 1, 2);
-legend(legend_entries, 'Location', 'Best');
-xlabel('Time (s)');
-ylabel('Control Action');
-grid on;
-
-subplot(3, 1, 3);
-legend(legend_entries, 'Location', 'Best');
-xlabel('Time (s)');
-ylabel('Sliding surface (s)');
-grid on;
-
-hold off;
-
-% --------- Changing the value of Eta
-% Control law 
-eta_values = [0.1 0.5 1 1.5];
-
-figure
-
-% Preallocate legend entries for each subplot
-legend_entries = cell(1, length(Phi_values));
-
-% Create subplots
-subplot(3, 1, 1);
-hold on;
-
-subplot(3, 1, 2);
-hold on;
-
-subplot(3, 1, 3);
-hold on;
-
-
-for i = 1:length(eta_values)
-    eta = eta_values(i);
-    Phi = 1;
-    K = [0.25 0.25 -1];
-    
-    % Intervalo de Simulação
-    interval = [0 8];
-    x0 = [2 2 2 0];
-    
-    % Solver ODE45
-    [t, y] = ode45(@(t, x) SystemProblem02(t, x, @(x) ControlLawSlidingSurface(x, Phi, eta, K)), interval, x0);
-    
-    s = zeros(size(y,1),1);
-    for j = 1:size(y,1)
-        s(j) = y(j,1) + y(j,2) + y(j,3);
-    end
-    
-    % Plot x_2
-    subplot(3, 1, 1);
-    plot(t, y(:, 2));
-    
-    % Plot control action
-    subplot(3, 1, 2);
-    plot(t, y(:, 4));
-    
-    subplot(3, 1, 3);
-    plot(t, s);
-
-    % Update legend entries
-    legend_entries{i} = sprintf('\\eta = %.1f', eta);
-end
-
-subplot(3, 1, 1);
-legend(legend_entries, 'Location', 'Best');
-xlabel('Time (s)');
-ylabel('State x_2');
-grid on;
-
-subplot(3, 1, 2);
-legend(legend_entries, 'Location', 'Best');
-xlabel('Time (s)');
-ylabel('Control Action');
-grid on;
-
-subplot(3, 1, 3);
-legend(legend_entries, 'Location', 'Best');
-xlabel('Time (s)');
-ylabel('Sliding surface (s)');
-grid on;
-
-hold off;
-
-
+% Plot results
