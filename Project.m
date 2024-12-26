@@ -192,6 +192,7 @@ fprintf('Interval K - [0, %.3f]\n', max(K_max_values));
 % Control law 
 Phi = 1.5;
 eta = 1;
+rho = 0.1;
 K = [0.25 0.25 -1];
 
 % Intervalo de Simulação
@@ -199,7 +200,7 @@ interval = [0 8];
 x0 = [2 2 2 0];
 
 % Solver ODE45
-[t, y] = ode45(@(t, x) SystemProblem02(t, x, @(x) ControlLawSlidingSurface(x, Phi, eta, K)), interval, x0);
+[t, y] = ode45(@(t, x) SystemProblem02(t, x, @(x) ControlLawSlidingSurface(x, Phi, eta, rho, K)), interval, x0);
 
 s = zeros(size(y,1),1);
 for i=1:size(y,1)
@@ -248,6 +249,7 @@ hold on;
 for i = 1:length(Phi_values)
     Phi = Phi_values(i);
     eta = 0.1;
+    rho = 0.1;
     K = [0.25 0.25 -1];
     
     % Intervalo de Simulação
@@ -255,7 +257,7 @@ for i = 1:length(Phi_values)
     x0 = [2 2 2 0];
     
     % Solver ODE45
-    [t, y] = ode45(@(t, x) SystemProblem02(t, x, @(x) ControlLawSlidingSurface(x, Phi, eta, K)), interval, x0);
+    [t, y] = ode45(@(t, x) SystemProblem02(t, x, @(x) ControlLawSlidingSurface(x, Phi, eta, rho, K)), interval, x0);
     
     s = zeros(size(y,1),1);
     for j = 1:size(y,1)
@@ -320,6 +322,7 @@ hold on;
 for i = 1:length(eta_values)
     eta = eta_values(i);
     Phi = 1;
+    rho = 0.1;
     K = [0.25 0.25 -1];
     
     % Intervalo de Simulação
@@ -327,7 +330,7 @@ for i = 1:length(eta_values)
     x0 = [2 2 2 0];
     
     % Solver ODE45
-    [t, y] = ode45(@(t, x) SystemProblem02(t, x, @(x) ControlLawSlidingSurface(x, Phi, eta, K)), interval, x0);
+    [t, y] = ode45(@(t, x) SystemProblem02(t, x, @(x) ControlLawSlidingSurface(x, Phi, eta, rho, K)), interval, x0);
     
     s = zeros(size(y,1),1);
     for j = 1:size(y,1)
