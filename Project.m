@@ -185,6 +185,92 @@ fprintf('Interval K - [0, %.3f]\n', max(K_max_values));
 
 %% P2 - Question 02
 
+% --------- Specific case
+% Control law 
+K = -1;
+v = 0;
+
+% Intervalo de Simulação
+interval = [0 6];
+x0 = [1 1 1 0];
+
+% Solver ODE45
+[t, y] = ode45(@(t, x) SystemProblem02(t, x, @(x) ControlLawIOFL(x, K, v)), interval, x0);
+
+s = zeros(size(y,1),1);
+for i=1:size(y,1)
+    s(i) = y(i,1)+y(i,2)+y(i,3);
+end
+
+% Plot results
+figure;
+subplot(2, 1, 1);
+plot(t, y(:, 2), 'LineWidth',1.5);
+xlabel('Time (s)');
+ylabel('Output (x_2)');
+legend('x_2');
+
+subplot(2, 1, 2);
+plot(t, y(:, 4), 'LineWidth',1.5); % Plota a ação de controle
+xlabel('Time (s)');
+ylabel('Control Action');
+
+
+% --------- different poles
+
+K_values = [-1 -4 -6 -8];
+
+figure
+% Preallocate legend entries for each subplot
+legend_entries = cell(1, length(K_values));
+
+% Create subplots
+subplot(2, 1, 1);
+hold on;
+
+subplot(2, 1, 2);
+hold on;
+
+for i=1:length(K_values)
+
+    % Control law 
+    K = K_values(i);
+    v = 0;
+    
+    % Intervalo de Simulação
+    interval = [0 6];
+    x0 = [1 1 1 0];
+    
+    % Solver ODE45
+    [t, y] = ode45(@(t, x) SystemProblem02(t, x, @(x) ControlLawIOFL(x, K, v)), interval, x0);
+    
+    % Plot x_2
+    subplot(2, 1, 1);
+    plot(t, y(:, 2), 'LineWidth',1.5);
+    
+    % Plot control action
+    subplot(2, 1, 2);
+    plot(t, y(:, 4), 'LineWidth',1.5);
+
+    % Update legend entries
+    legend_entries{i} = sprintf('K = %.1f', K); % Use LaTeX for Φ
+
+end
+
+subplot(2, 1, 1);
+legend(legend_entries, 'Location', 'Best');
+xlabel('Time (s)');
+ylabel('Output (x_2)');
+grid on;
+
+subplot(2, 1, 2);
+legend(legend_entries, 'Location', 'Best');
+xlabel('Time (s)');
+ylabel('Control Action');
+grid on;
+
+hold off
+
 
 %% P2 - Question 03
 
