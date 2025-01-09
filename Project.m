@@ -62,6 +62,57 @@ plot( real(inv_N_A_actuator3) , imag(inv_N_A_actuator3), LineWidth=2)
 legend('System 1', 'Actuator 1', 'Actuator 2', 'Actuator 3')
 axis([-1.5 -0.5 -5 10])
 hold off
+%%
+
+[para.A, para.B, para.C, para.D] = tf2ss([20],[1, 7, 10, 0]);
+
+% Intervalo de Simulação
+interval = [0 40];
+x0 = [0 0 0];
+
+% Solver ODE45
+[t, y] = ode45(@(t, x) SystemProblem01(t, x, para), interval, x0);
+
+% Create VideoWriter object
+v = VideoWriter('state_space_trajectory', 'MPEG-4');
+v.FrameRate = 30; % Frames per second
+open(v); % Open video file
+
+figure;
+grid on;
+hold on;
+
+% Label axes
+xlabel('$x_1$', 'Interpreter', 'latex', 'FontSize', 12);
+ylabel('$x_2$', 'Interpreter', 'latex', 'FontSize', 12);
+title('State Space Trajectory', 'FontSize', 14);
+
+% Fix the axis limits (adjust according to your system dynamics)
+
+% Plot dynamically
+for i = 1:length(t)
+    cla;
+    % Plot trajectory up to the current point (excluding previous trajectory)
+    plot(y(1:i,1), y(1:i,2), 'b-', 'LineWidth', 1); 
+    hold on;
+    
+    % Highlight current point
+    plot(y(i,1), y(i,2), 'ro', 'MarkerSize', 3, 'MarkerFaceColor', 'r');
+    % Capture frame and write to video
+    frame = getframe(gcf); % Capture the current frame
+    writeVideo(v, frame);   % Write the frame to video file
+
+    pause(0.05); % Pause to create animation effect
+end
+
+% Close video file
+close(v);
+
+hold off;
+
+
+
+
 
 %% P1 - Question 02
 
@@ -180,6 +231,50 @@ fprintf('P1 - Question 02\n')
 fprintf('Popov Criteria\n');
 fprintf('Interval K - [0, %.3f]\n', max(K_max_values));
 
+
+figure
+grid on
+hold on;
+axis([min(X)/2 max(X)/2 min(Y)/2+0.5 max(Y)/2+0.5]);
+xlabel('Re(G(j\omega))');
+ylabel('Im(G(j\omega)) \cdot \omega');
+% Initialize video writer
+v = VideoWriter('PopovCriteria', 'MPEG-4');
+open(v);
+
+% Plot the initial (blue) line first
+plot(X, Y, 'LineWidth', 2, 'Color', 'b')
+
+last_line = [];
+
+% Loop para plotar cada linha
+for i = 1:length(K_max_values)
+    
+    % Se já existe uma linha anterior, atualize ela para cinza
+    if i > 1
+        set(last_line, 'Color', [0.5 0.5 0.5], 'LineWidth', 0.5);  % Alterar a cor para cinza
+    end
+    
+    K = K_max_values(i);  % Obter o valor de K atual
+    q = q_values(i);  % Obter o valor de q atual
+    
+    % Calcular a linha Popov
+    line = (X + 1 / K) ./ q;
+    
+    % Plotar a linha atual em azul
+    last_line = plot(X, line, 'LineWidth', 1, 'Color', 'r');  % Armazenar o handle da linha
+    
+    % Capturar o quadro e escrever no vídeo
+    frame = getframe(gcf);  % Captura o quadro atual
+    writeVideo(v, frame);   % Grava o quadro no arquivo de vídeo
+    
+    % Pausar para efeito de animação
+    pause(3);
+end
+
+% Close video file after the loop
+close(v);
+
 %% P2 - Question 01
 
 
@@ -187,7 +282,7 @@ fprintf('Interval K - [0, %.3f]\n', max(K_max_values));
 
 % --------- Specific case
 % Control law 
-K = -1;
+K = 1;
 v = 0;
 
 % Intervalo de Simulação
@@ -218,7 +313,7 @@ ylabel('Control Action');
 
 % --------- different poles
 
-K_values = [-1 -4 -6 -8];
+K_values = [1 4 6 8];
 
 figure
 % Preallocate legend entries for each subplot
