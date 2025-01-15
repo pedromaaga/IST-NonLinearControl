@@ -1,7 +1,0 @@
-function dxdt = SystemProblem01(t, x, para)
-    % Control law
-    u = ControlNonLinear([x(1);x(2);x(3)], para);
-
-    % System equations
-    dxdt = para.A * x[x(1);x(2);x(3)] + para.B * u;
-end
